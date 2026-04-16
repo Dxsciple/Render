@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ Esto sirve tus archivos HTML/CSS/JS
+// ✅ Sirve tus archivos estáticos
 app.use(express.static(path.join(__dirname)));
 
 const db = mysql.createConnection({
@@ -38,7 +38,7 @@ db.connect((err) => {
     });
 });
 
-// Rutas de API
+// Rutas de API (Tus rutas que ya jalan)
 app.get('/api/v1/users', (req, res) => {
     db.query('SELECT * FROM usuarios ORDER BY id DESC', (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -62,8 +62,8 @@ app.delete('/api/v1/users/:id', (req, res) => {
     });
 });
 
-// ✅ REGLA DE ORO: Manda siempre al index.html si no es una ruta de API
-// Esto arregla el error al cerrar sesión
+// ✅ ESTO ARREGLA EL ERROR AL CERRAR SESIÓN
+// Si pides cualquier ruta que no sea la API, te manda al index.html
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
