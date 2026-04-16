@@ -1,20 +1,25 @@
 const express = require('express');
 const cors = require('cors');
-const mysql = require('mysql2'); //
+const mysql = require('mysql2');
+const path = require('path'); // Nueva librería para manejar rutas
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+// ✅ ESTA ES LA LÍNEA QUE ARREGLA EL ERROR "CANNOT GET /admin.html"
+// Le dice a Render que sirva todos los archivos de tu carpeta (html, css, js)
+app.use(express.static(__dirname));
+
 // CONFIGURACIÓN CONEXIÓN AIVEN
 const db = mysql.createConnection({
-    host: 'mysql-1c60500c-utem-7be9.a.aivencloud.com', //
-    port: 20678,                                     //
-    user: 'avnadmin',                                //
-    password: 'AVNS_Cdo5T1GzuWHqxWDZv7U',            //
-    database: 'defaultdb',                           //
+    host: 'mysql-1c60500c-utem-7be9.a.aivencloud.com',
+    port: 20678,
+    user: 'avnadmin',
+    password: 'AVNS_Cdo5T1GzuWHqxWDZv7U',
+    database: 'defaultdb',
     ssl: { 
-        rejectUnauthorized: false                    // Requerido para Aiven
+        rejectUnauthorized: false
     }
 });
 
@@ -25,7 +30,6 @@ db.connect((err) => {
     }
     console.log('✅ API conectada a la nube (Aiven) con mysql2');
 
-    // ESTO CREA LA TABLA AUTOMÁTICAMENTE SI NO EXISTE
     const sqlSchema = `
     CREATE TABLE IF NOT EXISTS usuarios (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -81,8 +85,13 @@ app.delete('/api/v1/users/:id', (req, res) => {
     });
 });
 
+// RUTA PARA SERVIR EL ADMIN.HTML EN LA RAÍZ (OPCIONAL)
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
 // CONFIGURACIÓN DE PUERTO PARA RENDER
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
 });
