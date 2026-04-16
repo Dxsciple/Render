@@ -10,7 +10,6 @@
 <body>
     <header class="admin-header">
         <div class="container">
-            <img src="1.png" alt="Logo" class="admin-logo">
             <h1>Gestión de Usuarios</h1>
             <a href="index.html" class="btn btn-logout">Cerrar Sesión</a>
         </div>
@@ -26,9 +25,7 @@
                 <h3>FECHA DE HOY</h3>
                 <p id="fecha-hoy">--/--/--</p>
             </div>
-            <button id="btn-nuevo" class="btn btn-primary big-btn">
-                + Añadir Nuevo Usuario
-            </button>
+            <button id="btn-nuevo" class="btn btn-primary big-btn">+ Añadir Nuevo Usuario</button>
         </div>
 
         <table class="user-table">
@@ -52,19 +49,12 @@
             <h2 id="modal-title">Añadir Usuario</h2>
             <form id="user-form">
                 <input type="hidden" id="user-id">
-                <h3 class="form-section">Datos Personales</h3>
                 <div class="form-grid">
                     <div class="form-group"><label>Nombre:</label><input type="text" id="name" required></div>
                     <div class="form-group"><label>Email:</label><input type="email" id="email" required></div>
                     <div class="form-group"><label>Teléfono:</label><input type="tel" id="phone"></div>
                     <div class="form-group"><label>Fecha Registro:</label><input type="date" id="fecha" required></div>
-                </div>
-                <h3 class="form-section">Ficha Médica</h3>
-                <div class="form-grid">
-                    <div class="form-group"><label>Fecha Nacimiento:</label><input type="date" id="nacimiento"></div>
                     <div class="form-group"><label>Edad:</label><input type="number" id="edad"></div>
-                    <div class="form-group"><label>Estatura (cm):</label><input type="number" id="estatura" placeholder="Ej: 175"></div>
-                    <div class="form-group"><label>Peso (kg):</label><input type="number" step="0.1" id="peso" placeholder="Ej: 70.5"></div>
                     <div class="form-group">
                         <label>Genotipo:</label>
                         <select id="genotipo">
@@ -74,9 +64,9 @@
                             <option value="Endomorfo">Endomorfo</option>
                         </select>
                     </div>
-                    <div class="form-group"><label>Foto (URL):</label><input type="text" id="foto" placeholder="https://link.com/foto.jpg"></div>
+                    <div class="form-group"><label>Foto (URL):</label><input type="text" id="foto"></div>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width:100%; margin-top:20px;">Guardar Ficha</button>
+                <button type="submit" class="btn btn-primary" style="width:100%; margin-top:20px;">GUARDAR FICHA</button>
             </form>
         </div>
     </div>
