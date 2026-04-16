@@ -6,6 +6,8 @@ const path = require('path');
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// ✅ 1. Servir archivos estáticos (Esto conecta el HTML, CSS y JS)
 app.use(express.static(__dirname));
 
 const db = mysql.createConnection({
@@ -21,7 +23,6 @@ db.connect((err) => {
     if (err) return console.error('❌ Error Aiven:', err);
     console.log('✅ Conectado a Aiven');
     
-    // Esta parte asegura que la tabla tenga las columnas que tu formulario envía
     const initTable = `CREATE TABLE IF NOT EXISTS usuarios (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255),
@@ -37,6 +38,12 @@ db.connect((err) => {
     });
 });
 
+// ✅ 2. RUTA PRINCIPAL (Para que cargue el login al entrar al link)
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// API Routes (Tus rutas que ya funcionan perfecto)
 app.get('/api/v1/users', (req, res) => {
     db.query('SELECT * FROM usuarios ORDER BY id DESC', (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -46,7 +53,6 @@ app.get('/api/v1/users', (req, res) => {
 
 app.post('/api/v1/users', (req, res) => {
     const { name, email, phone, fecha_registro, edad, genotipo, foto_url } = req.body;
-    // Insertamos solo los campos que definimos arriba
     const sql = `INSERT INTO usuarios (name, email, phone, fecha_registro, edad, genotipo, foto_url) VALUES (?, ?, ?, ?, ?, ?, ?)`;
     db.query(sql, [name, email, phone, fecha_registro, edad, genotipo, foto_url], (err, result) => {
         if (err) {
@@ -62,6 +68,12 @@ app.delete('/api/v1/users/:id', (req, res) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: 'Eliminado' });
     });
+});
+
+// ✅ 3. PARCHE DE CIERRE DE SESIÓN
+// Si pides cualquier cosa que no sea la API, te manda al index
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
