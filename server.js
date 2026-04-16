@@ -7,8 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 1. Configuración de archivos estáticos (HTML, CSS, JS)
-// Esto asegura que Render encuentre tus archivos en la carpeta principal
+// ✅ 1. Servir archivos estáticos con ruta absoluta
 app.use(express.static(path.join(__dirname)));
 
 const db = mysql.createConnection({
@@ -35,12 +34,11 @@ db.connect((err) => {
         foto_url TEXT
     )`;
     db.query(initTable, (err) => {
-        if (err) console.error("Error al crear/verificar tabla:", err);
+        if (err) console.error("Error al verificar tabla:", err);
     });
 });
 
 // --- RUTAS DE LA API ---
-
 app.get('/api/v1/users', (req, res) => {
     db.query('SELECT * FROM usuarios ORDER BY id DESC', (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -64,19 +62,24 @@ app.delete('/api/v1/users/:id', (req, res) => {
     });
 });
 
-// --- MANEJO DE NAVEGACIÓN (FRONTEND) ---
+// --- MANEJO DE ARCHIVOS HTML (ARREGLA EL "NOT FOUND") ---
 
-// Esta ruta específica maneja el index.html
+// Fuerza la carga del index al pedir la raíz
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Fuerza la carga si se pide index.html directamente (Cerrar Sesión)
 app.get('/index.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Esta ruta maneja el panel de admin
+// Manejo del panel de admin
 app.get('/admin.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
-// COMODÍN: Si el usuario pide cualquier otra cosa, lo mandamos al login
+// COMODÍN: Cualquier otra ruta perdida vuelve al login
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
