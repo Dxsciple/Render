@@ -6,8 +6,6 @@ const path = require('path');
 const app = express();
 app.use(cors());
 app.use(express.json());
-
-// ✅ Servir archivos estáticos para que cargue el CSS y JS
 app.use(express.static(__dirname));
 
 const db = mysql.createConnection({
@@ -19,9 +17,25 @@ const db = mysql.createConnection({
     ssl: { rejectUnauthorized: false }
 });
 
+// Verificación de conexión
 db.connect((err) => {
     if (err) return console.error('❌ Error Aiven:', err);
-    console.log('✅ Servidor conectado a la base de datos');
+    console.log('✅ Conectado a Aiven');
+    
+    // Crear tabla si no existe con los nombres exactos del formulario
+    const createTable = `CREATE TABLE IF NOT EXISTS usuarios (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255),
+        email VARCHAR(255),
+        phone VARCHAR(50),
+        fecha_registro VARCHAR(50),
+        edad VARCHAR(10),
+        genotipo VARCHAR(50),
+        foto_url TEXT
+    )`;
+    db.query(createTable, (err) => {
+        if (err) console.log("Error tabla:", err);
+    });
 });
 
 app.get('/api/v1/users', (req, res) => {
@@ -34,8 +48,13 @@ app.get('/api/v1/users', (req, res) => {
 app.post('/api/v1/users', (req, res) => {
     const { name, email, phone, fecha_registro, edad, genotipo, foto_url } = req.body;
     const sql = `INSERT INTO usuarios (name, email, phone, fecha_registro, edad, genotipo, foto_url) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-    db.query(sql, [name, email, phone, fecha_registro, edad, genotipo, foto_url], (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
+    const values = [name, email, phone, fecha_registro, edad, genotipo, foto_url];
+
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error("Error al insertar:", err);
+            return res.status(500).json({ error: err.message });
+        }
         res.status(201).json({ id: result.insertId });
     });
 });
@@ -43,7 +62,7 @@ app.post('/api/v1/users', (req, res) => {
 app.delete('/api/v1/users/:id', (req, res) => {
     db.query('DELETE FROM usuarios WHERE id = ?', [req.params.id], (err) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: 'Usuario eliminado' });
+        res.json({ message: 'Eliminado' });
     });
 });
 
