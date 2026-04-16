@@ -7,7 +7,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ Sirve tus archivos estáticos
+// 1. Configuración de archivos estáticos (HTML, CSS, JS)
+// Esto asegura que Render encuentre tus archivos en la carpeta principal
 app.use(express.static(path.join(__dirname)));
 
 const db = mysql.createConnection({
@@ -34,11 +35,12 @@ db.connect((err) => {
         foto_url TEXT
     )`;
     db.query(initTable, (err) => {
-        if (err) console.error("Error al crear tabla:", err);
+        if (err) console.error("Error al crear/verificar tabla:", err);
     });
 });
 
-// Rutas de API (Tus rutas que ya jalan)
+// --- RUTAS DE LA API ---
+
 app.get('/api/v1/users', (req, res) => {
     db.query('SELECT * FROM usuarios ORDER BY id DESC', (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -62,13 +64,24 @@ app.delete('/api/v1/users/:id', (req, res) => {
     });
 });
 
-// ✅ ESTO ARREGLA EL ERROR AL CERRAR SESIÓN
-// Si pides cualquier ruta que no sea la API, te manda al index.html
+// --- MANEJO DE NAVEGACIÓN (FRONTEND) ---
+
+// Esta ruta específica maneja el index.html
+app.get('/index.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Esta ruta maneja el panel de admin
+app.get('/admin.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+// COMODÍN: Si el usuario pide cualquier otra cosa, lo mandamos al login
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Servidor activo en puerto ${PORT}`);
+    console.log(`🚀 Servidor en puerto ${PORT}`);
 });
