@@ -7,7 +7,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ 1. Servir archivos estáticos con ruta absoluta
+// ✅ 1. Servir archivos estáticos (CSS, JS, imágenes)
+// Esto es vital para que tu diseño cargue bien
 app.use(express.static(path.join(__dirname)));
 
 const db = mysql.createConnection({
@@ -62,7 +63,7 @@ app.delete('/api/v1/users/:id', (req, res) => {
     });
 });
 
-// --- MANEJO DE ARCHIVOS HTML (ARREGLA EL "NOT FOUND") ---
+// --- MANEJO DE ARCHIVOS HTML ---
 
 // Fuerza la carga del index al pedir la raíz
 app.get('/', (req, res) => {
@@ -79,9 +80,14 @@ app.get('/admin.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
-// COMODÍN: Cualquier otra ruta perdida vuelve al login
+// ✅ COMODÍN INTELIGENTE: Arregla el diseño
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    // Si la ruta incluye un punto (ej. style.css, admin.js), no enviamos el index.html
+    if (req.url.includes('.')) {
+        res.status(404).send('Archivo no encontrado');
+    } else {
+        res.sendFile(path.join(__dirname, 'index.html'));
+    }
 });
 
 const PORT = process.env.PORT || 3000;
