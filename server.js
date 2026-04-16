@@ -17,13 +17,12 @@ const db = mysql.createConnection({
     ssl: { rejectUnauthorized: false }
 });
 
-// Verificación de conexión
 db.connect((err) => {
     if (err) return console.error('❌ Error Aiven:', err);
     console.log('✅ Conectado a Aiven');
     
-    // Crear tabla si no existe con los nombres exactos del formulario
-    const createTable = `CREATE TABLE IF NOT EXISTS usuarios (
+    // Esta parte asegura que la tabla tenga las columnas que tu formulario envía
+    const initTable = `CREATE TABLE IF NOT EXISTS usuarios (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255),
         email VARCHAR(255),
@@ -33,8 +32,8 @@ db.connect((err) => {
         genotipo VARCHAR(50),
         foto_url TEXT
     )`;
-    db.query(createTable, (err) => {
-        if (err) console.log("Error tabla:", err);
+    db.query(initTable, (err) => {
+        if (err) console.error("Error al crear/verificar tabla:", err);
     });
 });
 
@@ -47,12 +46,11 @@ app.get('/api/v1/users', (req, res) => {
 
 app.post('/api/v1/users', (req, res) => {
     const { name, email, phone, fecha_registro, edad, genotipo, foto_url } = req.body;
+    // Insertamos solo los campos que definimos arriba
     const sql = `INSERT INTO usuarios (name, email, phone, fecha_registro, edad, genotipo, foto_url) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-    const values = [name, email, phone, fecha_registro, edad, genotipo, foto_url];
-
-    db.query(sql, values, (err, result) => {
+    db.query(sql, [name, email, phone, fecha_registro, edad, genotipo, foto_url], (err, result) => {
         if (err) {
-            console.error("Error al insertar:", err);
+            console.error("Error SQL:", err);
             return res.status(500).json({ error: err.message });
         }
         res.status(201).json({ id: result.insertId });
